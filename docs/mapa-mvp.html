@@ -174,17 +174,17 @@ h3{margin-top:.6rem}
 <header class="top">
   <div class="eyebrow">MVP · Engenharia de Dados · PUC-Rio</div>
   <h1>Roteiro do MVP Lakehouse</h1>
-  <p class="lede">Mapa integral de execução, independente do dataset: da pergunta de negócio ao README entregue. Cada bloco corresponde a uma etapa do enunciado e termina em um artefato verificável — tabela persistida, screenshot ou seção do documento final. O primeiro bloco é escolher a fonte de dados.</p>
+  <p class="lede">Mapa integral de execução sobre o dataset <b>Beach Volleyball</b> (Kaggle): da pergunta de negócio ao README entregue. Cada bloco corresponde a uma etapa do enunciado e termina em um artefato verificável — tabela persistida, screenshot ou seção do documento final.</p>
   <div class="meta-strip">
     <span>Entrega <b>27/09</b></span>
-    <span>Hoje <b>09/09</b></span>
-    <span>Janela <b>18 dias</b></span>
+    <span>Decidido em <b>11/09</b></span>
+    <span>Janela <b>16 dias</b></span>
     <span>Nota <b>10,0 pts</b></span>
-    <span>Dataset <b>a definir</b></span>
+    <span>Dataset <b>Beach Volleyball</b></span>
   </div>
 
   <div class="flow">
-    <div class="step"><span class="n">fonte</span><span class="t">dataset</span><span class="d">a escolher</span></div>
+    <div class="step"><span class="n">fonte</span><span class="t">Kaggle</span><span class="d">kagglehub → vb_matches.csv</span></div>
     <div class="step a"><span class="n">landing</span><span class="t">Volume</span><span class="d">Unity Catalog</span></div>
     <div class="step b"><span class="n">camada 1</span><span class="t">bronze</span><span class="d">bruto + metadados</span></div>
     <div class="step s"><span class="n">camada 2</span><span class="t">silver</span><span class="d">limpo e tipado</span></div>
@@ -197,8 +197,8 @@ h3{margin-top:.6rem}
 <section class="blk">
   <div class="rail">Decisões<span class="stage">o que já pode travar</span></div>
   <div class="body">
-    <h2>O que independe do dataset</h2>
-    <p>Cinco das seis decisões estruturais podem ser tomadas hoje, antes de saber qual fonte você vai usar. Só a linha do dataset fica aberta — e ela não bloqueia nenhuma preparação de ambiente.</p>
+    <h2>Decisões travadas</h2>
+    <p>As seis decisões estruturais estão tomadas. O que resta é execução: ambiente, coleta, camadas, catálogo, análise e README.</p>
     <div class="tw"><table>
       <thead><tr><th>Decisão</th><th>Escolha</th><th>Por quê</th></tr></thead>
       <tbody>
@@ -207,61 +207,44 @@ h3{margin-top:.6rem}
         <tr><td>Formato</td><td class="mono">Delta Lake</td><td>Padrão do Databricks: ACID, time travel e evolução de schema sem esforço adicional.</td></tr>
         <tr><td>Linguagem</td><td class="mono">PySpark + SQL</td><td>PySpark na ingestão e limpeza, SQL nos agregados e na análise. Mostra domínio dos dois.</td></tr>
         <tr><td>Versionamento</td><td class="mono">Git folder do Databricks</td><td>Notebooks nascem dentro da pasta versionada e o push é diário — evita repositório vazio na véspera.</td></tr>
-        <tr><td>Dataset</td><td class="mono">a definir até 11/09</td><td>Escolher pela matriz do bloco seguinte. Prazo próprio, para não comprometer o cronograma.</td></tr>
+        <tr><td>Dataset</td><td class="mono">Beach Volleyball</td><td>Kaggle <code>jessemostipak/beach-volleyball</code>, decidido em 11/09 pela matriz de decisão (49/54). Ficha no bloco seguinte.</td></tr>
       </tbody>
     </table></div>
   </div>
 </section>
 
-<!-- escolha do dataset -->
+<!-- dataset escolhido -->
 <section class="blk">
-  <div class="rail">Bloco 0<span class="stage">decidir até 11/09</span></div>
+  <div class="rail">Bloco 0<span class="stage">decidido em 11/09</span></div>
   <div class="body">
-    <h2>Escolha da fonte de dados</h2>
-    <p>A escolha do dataset determina diretamente dois critérios que somam 3,0 pontos: se dá para defender um modelo dimensional de verdade (2,0) e se existe sujeira real para tratar (1,0). Avalie os candidatos pela matriz abaixo em vez de decidir por afinidade com o tema.</p>
+    <h2>Dataset: Beach Volleyball</h2>
+    <p>Um arquivo, <code>vb_matches.csv</code>: 76.756 partidas de vôlei de praia entre 2000 e 2019, FIVB World Tour e AVP, masculino e feminino, 65 colunas. Uma linha por partida em formato wide — dois vencedores (<code>w_p1_*</code>, <code>w_p2_*</code>) e dois perdedores (<code>l_p1_*</code>, <code>l_p2_*</code>), cada um com nome, nascimento, altura, país e, quando registrado, estatísticas de ataque, kill, erro, ace, bloqueio e defesa.</p>
 
-    <h3>Matriz de decisão</h3>
+    <h3>Ficha</h3>
     <div class="tw"><table>
-      <thead><tr><th>Critério</th><th class="w">Peso</th><th>Nota 0 a 3</th><th>Candidato A</th><th>Candidato B</th></tr></thead>
+      <thead><tr><th>Item</th><th>Valor</th></tr></thead>
       <tbody>
-        <tr><td>Tabelas relacionadas com chaves identificáveis</td><td class="w">3</td><td>0 = arquivo único e estreito · 3 = 4+ tabelas com PK/FK claras</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Métrica numérica que sustente um fato</td><td class="w">3</td><td>0 = só atributos categóricos · 3 = valor, preço, nota ou contagem por evento</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Coluna temporal utilizável</td><td class="w">2</td><td>0 = sem data · 3 = timestamp por registro cobrindo 12+ meses</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Sujeira real para tratar</td><td class="w">2</td><td>0 = base curada e perfeita · 3 = nulos, duplicatas e formatos inconsistentes</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Documentação das colunas na fonte</td><td class="w">2</td><td>0 = colunas sem significado documentado · 3 = dicionário de dados publicado</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Interesse pessoal e valor de portfólio</td><td class="w">2</td><td>0 = tema indiferente · 3 = domínio em que você quer atuar</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Dimensão geográfica ou categórica</td><td class="w">1</td><td>0 = nenhuma · 3 = região e categoria disponíveis</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Licença explícita <span class="kill">eliminatório</span></td><td class="w">2</td><td>0 = licença não declarada — <b>descarte o candidato</b> · 3 = licença aberta e citável</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr><td>Volume compatível com o Free Edition <span class="kill">eliminatório</span></td><td class="w">1</td><td>0 = dezenas de GB sem possibilidade de subset · 3 = até alguns GB</td><td class="fill">—</td><td class="fill">—</td></tr>
-        <tr class="tot"><td>Total</td><td class="w">18</td><td>Máximo 54 · viável a partir de 36</td><td class="fill">—</td><td class="fill">—</td></tr>
-      </tbody>
-      <caption>Pontue de 0 a 3 e multiplique pelo peso. Dois critérios são eliminatórios: licença não declarada e volume impossível de reduzir descartam o candidato independentemente do total.</caption>
-    </table></div>
-
-    <h3>Onde procurar</h3>
-    <div class="two">
-      <div class="panel"><span class="tag">arquivo pronto</span><h4>Kaggle Datasets</h4><p>Maior variedade e, em geral, com descrição de colunas e notebooks de exemplo que ajudam a formular perguntas. Confira a licença de cada dataset individualmente — varia muito.</p></div>
-      <div class="panel"><span class="tag">arquivo pronto</span><h4>Dados Abertos gov.br e Portal da Transparência</h4><p>Volume alto, tema de interesse público, licença aberta. Costuma vir com encoding latin-1, número com vírgula decimal e um arquivo por mês — ótima sujeira para a seção de qualidade.</p></div>
-      <div class="panel"><span class="tag">arquivo pronto</span><h4>Databricks Public Datasets</h4><p>Já montados no ambiente, sem etapa de download. Atalho seguro, mas a etapa de coleta fica pobre — vale como plano B.</p></div>
-      <div class="panel"><span class="tag">avançado</span><h4>API ou web scraping</h4><p>Conta como caso avançado no enunciado e pesa no capricho. Só siga por aqui se já tem experiência — a curva de aprendizado sai do orçamento de 18 dias.</p></div>
-      <div class="panel"><span class="tag">avançado</span><h4>Dados da empresa onde você trabalha</h4><p>Maior valor de portfólio e originalidade. Exige anonimizar nome, CPF/CNPJ e valores individuais <b>antes</b> de subir para qualquer ambiente externo.</p></div>
-      <div class="panel"><span class="tag">apoio</span><h4>IMDb, Yelp, Google Cloud Public Datasets</h4><p>Bases grandes e bem documentadas, boas para exercitar volume. Verifique restrição de uso não comercial e a viabilidade de trabalhar com um subset.</p></div>
-    </div>
-
-    <h3>Licenças: o que cada tipo permite</h3>
-    <div class="tw"><table>
-      <thead><tr><th>Licença</th><th>Uso acadêmico</th><th>Obriga</th></tr></thead>
-      <tbody>
-        <tr><td class="mono">CC0 / domínio público</td><td>Livre</td><td>Nada — mas cite a fonte de qualquer forma</td></tr>
-        <tr><td class="mono">CC BY</td><td>Livre</td><td>Atribuição ao autor original</td></tr>
-        <tr><td class="mono">CC BY-SA</td><td>Livre</td><td>Atribuição + derivados na mesma licença</td></tr>
-        <tr><td class="mono">CC BY-NC / NC-SA</td><td>Permitido</td><td>Atribuição + nada comercial (trabalho de curso se encaixa)</td></tr>
-        <tr><td class="mono">ODbL</td><td>Permitido</td><td>Atribuição + compartilhar adaptações do banco na mesma licença</td></tr>
-        <tr><td class="mono">Termos próprios do site</td><td>Depende</td><td>Ler os termos e transcrever a cláusula relevante no README</td></tr>
-        <tr><td class="mono">Não declarada</td><td class="kill">Descarte</td><td>Sem licença não há como cumprir o item do enunciado</td></tr>
+        <tr><td>Coleta</td><td><code>kagglehub.dataset_download("jessemostipak/beach-volleyball")</code> no notebook <code>00_coleta_kaggle.py</code>, copiando para o Volume <code>bronze.raw_files</code>. Credenciais Kaggle em Databricks Secrets.</td></tr>
+        <tr><td>Licença</td><td>CC0-1.0, distribuído pelo projeto TidyTuesday (<code>rfordatascience/tidytuesday</code>, semana 2020-05-19), compilado por Adam Vagnar a partir de resultados públicos da FIVB e da AVP. A página do Kaggle marca "Unknown" por omissão de quem espelhou — o README cita as duas URLs e a data do download.</td></tr>
+        <tr><td>Dicionário</td><td>Readme do TidyTuesday 2020-05-19, com todas as 65 colunas descritas.</td></tr>
+        <tr><td>Sujeira conhecida</td><td>Estatísticas detalhadas ausentes em ~81% das partidas (nulo estrutural: o torneio não registrou); datas de nascimento antes de 1970 com erro de 100 anos; colunas duplicadas; atletas sem chave — deduplicar por nome + nascimento.</td></tr>
+        <tr><td>Matriz de decisão</td><td>49 de 54. Alternativas avaliadas: F1 (48), Olist (46), PlusLiga (pequeno demais), combo VNL (licença não declarada), NCAA (licença não declarada).</td></tr>
       </tbody>
     </table></div>
-    <div class="note">Assim que decidir, registre no README em uma linha: <b>nome do dataset, fonte, data do download, licença e o que ela exige</b>. É um item avaliado e leva dois minutos.</div>
+
+    <h3>Modelo alvo na gold</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Tabela</th><th>Grão</th><th>Conteúdo</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">dim_atleta</td><td>um atleta</td><td>nome, nascimento, altura, país, gênero</td></tr>
+        <tr><td class="mono">dim_torneio</td><td>um torneio</td><td>circuito (FIVB/AVP), nome, país, ano, gênero</td></tr>
+        <tr><td class="mono">dim_data</td><td>um dia</td><td>gerada por sequência: ano, mês, década, dia da semana</td></tr>
+        <tr><td class="mono">fato_partida</td><td>uma partida</td><td>FKs para torneio, data e os 4 atletas; placar por set, duração, ranking das duplas</td></tr>
+        <tr><td class="mono">fato_desempenho_atleta</td><td>um atleta em uma partida</td><td>unpivot das 4 posições: ataques, kills, erros, aces, bloqueios, defesas, flag vencedor</td></tr>
+      </tbody>
+      <caption>Dois grãos, dois fatos — evita fan-out ao juntar estatística de atleta com resultado da partida.</caption>
+    </table></div>
+    <div class="note">Perguntas que o modelo sustenta sem forçar: evolução da altura média por década, vantagem de jogar no próprio país, relação entre aces e vitória, duração por gênero e circuito, concentração de títulos por dupla, migração de atletas entre AVP e FIVB.</div>
   </div>
 </section>
 
@@ -534,21 +517,21 @@ h3{margin-top:.6rem}
 <section class="blk">
   <div class="rail">Cronograma<span class="stage">09/09 → 27/09</span></div>
   <div class="body">
-    <h2>Dezoito dias, em blocos</h2>
+    <h2>Dezesseis dias, em blocos</h2>
     <div class="cal">
-      <div class="day"><span class="when">09–10/09</span><span class="what"><b>Ambiente</b><span>Conta, repositório público, Git folder, schemas e volume. Não depende do dataset — faça agora.</span></span></div>
-      <div class="day"><span class="when">10–11/09</span><span class="what"><b>Dataset e objetivo</b><span>Pontuar candidatos na matriz, decidir, registrar licença. Escrever problema e perguntas no README antes de abrir os dados.</span></span></div>
-      <div class="day"><span class="when">12–13/09</span><span class="what"><b>Bronze</b><span>Upload para o Volume e ingestão rodando, com contagens conferidas.</span></span></div>
-      <div class="day"><span class="when">14–15/09</span><span class="what"><b>Qualidade</b><span>Perfilamento por atributo e inventário de problemas — é o insumo das decisões da silver.</span></span></div>
-      <div class="day"><span class="when">16–18/09</span><span class="what"><b>Silver</b><span>Tipos, deduplicação, padronização, colunas derivadas e flags. Levar dúvidas à sessão de 16/09.</span></span></div>
-      <div class="day"><span class="when">19–21/09</span><span class="what"><b>Gold</b><span>Dimensões, fato no grão declarado e agregados. Bloco mais longo e de maior peso.</span></span></div>
-      <div class="day"><span class="when">22/09</span><span class="what"><b>Catálogo</b><span>Comentários, chaves informacionais, screenshots do Unity Catalog e o catálogo transcrito.</span></span></div>
-      <div class="day"><span class="when">23–24/09</span><span class="what"><b>Análise</b><span>Cada pergunta respondida com evidência e discussão. Última sessão de dúvidas é 23/09.</span></span></div>
-      <div class="day"><span class="when">25/09</span><span class="what"><b>Orquestração e validação</b><span>Job encadeado, execução limpa de ponta a ponta, testes pós-carga passando.</span></span></div>
-      <div class="day"><span class="when">26/09</span><span class="what"><b>README</b><span>As 7 seções escritas, screenshots colados, autoavaliação. Dia inteiro só de escrita.</span></span></div>
+      <div class="day"><span class="when">até 12/09</span><span class="what"><b>Ambiente</b><span>Repositório público feito em 11/09. Faltam: conta Databricks, Git folder, schemas, volume e secret scope do Kaggle.</span></span></div>
+      <div class="day"><span class="when">até 12/09</span><span class="what"><b>Objetivo</b><span>Dataset decidido. Escrever problema e 6–8 perguntas no README antes de abrir os dados; registrar licença.</span></span></div>
+      <div class="day"><span class="when">13–14/09</span><span class="what"><b>Coleta e Bronze</b><span>kagglehub → Volume, ingestão rodando, 76.756 linhas conferidas.</span></span></div>
+      <div class="day"><span class="when">15–16/09</span><span class="what"><b>Qualidade</b><span>Perfilamento por atributo e inventário de problemas — é o insumo das decisões da silver.</span></span></div>
+      <div class="day"><span class="when">17–19/09</span><span class="what"><b>Silver</b><span>Tipos, deduplicação, padronização, colunas derivadas e flags. Levar dúvidas à sessão de 16/09.</span></span></div>
+      <div class="day"><span class="when">20–22/09</span><span class="what"><b>Gold</b><span>Dimensões, fato no grão declarado e agregados. Bloco mais longo e de maior peso.</span></span></div>
+      <div class="day"><span class="when">23/09</span><span class="what"><b>Catálogo</b><span>Comentários, chaves informacionais, screenshots do Unity Catalog e o catálogo transcrito.</span></span></div>
+      <div class="day"><span class="when">24–25/09</span><span class="what"><b>Análise</b><span>Cada pergunta respondida com evidência e discussão. Última sessão de dúvidas é 23/09.</span></span></div>
+      <div class="day"><span class="when">26/09</span><span class="what"><b>Orquestração e validação</b><span>Job encadeado, execução limpa de ponta a ponta, testes pós-carga passando.</span></span></div>
+      <div class="day"><span class="when">26–27/09</span><span class="what"><b>README</b><span>As 7 seções escritas, screenshots colados, autoavaliação. Dia inteiro só de escrita.</span></span></div>
       <div class="day"><span class="when">27/09</span><span class="what"><b>Revisão e entrega</b><span>Repositório público, links funcionando, notebooks commitados, leitura final.</span></span></div>
     </div>
-    <div class="note">O cronograma reserva <b>dois dias</b> para a escolha do dataset. Passar disso come o tempo da gold, que é o bloco de maior peso — se em 11/09 ainda houver empate, escolha o candidato de maior total na matriz e siga.</div>
+    <div class="note">A gold é o bloco mais longo e de maior peso. Se a silver atrasar, corte agregados, não dimensões — o modelo dimensional documentado vale 2,0 pontos.</div>
   </div>
 </section>
 
@@ -560,7 +543,7 @@ h3{margin-top:.6rem}
     <div class="tw"><table>
       <thead><tr><th>Risco</th><th>Sinal</th><th>Plano B</th></tr></thead>
       <tbody>
-        <tr><td>Escolha do dataset se arrasta</td><td>Dia 13 e a bronze ainda não existe</td><td>Fechar pela matriz e aceitar o segundo melhor — pipeline bem executado sobre dataset bom vale mais que dataset perfeito sem pipeline</td></tr>
+        <tr><td>Ambiente Databricks se arrasta</td><td>Dia 14 e a bronze ainda não existe</td><td>Subir o CSV manualmente pelo botão de upload e deixar o notebook de coleta para depois — a ingestão não pode esperar</td></tr>
         <tr><td>Dataset se revela pobre depois da ingestão</td><td>Duas perguntas não têm coluna que as sustente</td><td>Complementar com uma segunda fonte pequena para join (tabela de referência, tradução, geografia) em vez de trocar tudo</td></tr>
         <tr><td>Free Edition não permite criar catálogos</td><td>Erro de permissão no <code>CREATE CATALOG</code></td><td>Um catálogo com três schemas — a progressão medalhão continua explícita e vale igual</td></tr>
         <tr><td>Tabela grande estoura o compute serverless</td><td>Job travando ou tempo excessivo em um join</td><td>Agregar a tabela grande antes do join, filtrar o período de interesse, ou trabalhar com subset documentado</td></tr>
@@ -575,7 +558,7 @@ h3{margin-top:.6rem}
 
 <footer>
   <div>Roteiro de execução</div>
-  <div>Mapa independente do dataset · Plataforma: Databricks Free Edition · Arquitetura medalhão em Delta Lake · Entrega: 27/09</div>
+  <div>Dataset Beach Volleyball · Plataforma: Databricks Free Edition · Arquitetura medalhão em Delta Lake · Entrega: 27/09</div>
 </footer>
 
 </div>
