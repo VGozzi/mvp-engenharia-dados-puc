@@ -1,0 +1,581 @@
+<title>Roteiro do MVP Lakehouse</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#EDF0F3;
+  --surface:#FFFFFF;
+  --surface-2:#F5F7F9;
+  --ink:#12171E;
+  --ink-2:#3C4653;
+  --muted:#68727F;
+  --line:#D2D9E0;
+  --line-soft:#E2E7EC;
+  --accent:#166079;
+  --accent-soft:#E0EDF1;
+  --bronze:#9A6533;
+  --silver:#6F7A88;
+  --gold:#A6811C;
+  --ok:#2C6E4B;
+  --warn:#9A6533;
+  --crit:#9B2F35;
+  --fs-xs:.75rem; --fs-sm:.8125rem; --fs-base:1rem; --fs-lg:1.0625rem;
+  --fs-xl:1.3rem; --fs-2xl:1.7rem; --fs-3xl:2.45rem;
+  --gut:clamp(0px,calc(100vw - 46rem),7.5rem);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#101519;
+    --surface:#171D23;
+    --surface-2:#1D242B;
+    --ink:#E7ECF1;
+    --ink-2:#BAC4CE;
+    --muted:#8A97A4;
+    --line:#2C353E;
+    --line-soft:#232B33;
+    --accent:#5FB6D0;
+    --accent-soft:#17323C;
+    --bronze:#C08B4E;
+    --silver:#9BA7B4;
+    --gold:#CFA637;
+    --ok:#6BBB8C;
+    --warn:#C08B4E;
+    --crit:#E0787D;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101519;
+  --surface:#171D23;
+  --surface-2:#1D242B;
+  --ink:#E7ECF1;
+  --ink-2:#BAC4CE;
+  --muted:#8A97A4;
+  --line:#2C353E;
+  --line-soft:#232B33;
+  --accent:#5FB6D0;
+  --accent-soft:#17323C;
+  --bronze:#C08B4E;
+  --silver:#9BA7B4;
+  --gold:#CFA637;
+  --ok:#6BBB8C;
+  --warn:#C08B4E;
+  --crit:#E0787D;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:var(--fs-base);
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:78rem;margin:0 auto;padding:0 1.5rem 6rem}
+h1,h2,h3{font-family:Archivo,"Helvetica Neue",Arial,sans-serif;text-wrap:balance;margin:0}
+h1{font-size:var(--fs-3xl);line-height:1.05;letter-spacing:-.022em;font-weight:700}
+h2{font-size:var(--fs-2xl);line-height:1.15;letter-spacing:-.017em;font-weight:600}
+h3{font-size:var(--fs-lg);line-height:1.3;letter-spacing:-.008em;font-weight:600}
+p{margin:0;max-width:66ch}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+code{font-size:.875em;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:3px;padding:.08em .32em}
+
+/* ---------- header ---------- */
+header.top{padding:4.5rem 0 3rem;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.1875rem;color:var(--ink-2);margin-top:1.15rem;max-width:60ch;line-height:1.55}
+.meta-strip{display:flex;flex-wrap:wrap;gap:.5rem 2.25rem;margin-top:2rem;font-family:"IBM Plex Mono",monospace;font-size:var(--fs-sm);color:var(--muted)}
+.meta-strip b{color:var(--ink);font-weight:500}
+
+/* ---------- flow ---------- */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:.4rem;margin:2.5rem 0 0}
+.step{flex:1 1 8.5rem;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--muted);padding:.7rem .8rem .8rem}
+.step .n{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.08em}
+.step .t{font-family:Archivo,sans-serif;font-weight:600;font-size:.95rem;margin-top:.15rem}
+.step .d{font-size:var(--fs-sm);color:var(--muted);line-height:1.4;margin-top:.2rem}
+.step.b{border-top-color:var(--bronze)}
+.step.s{border-top-color:var(--silver)}
+.step.g{border-top-color:var(--gold)}
+.step.a{border-top-color:var(--accent)}
+
+/* ---------- section rail layout ---------- */
+section.blk{display:grid;grid-template-columns:var(--gut) minmax(0,1fr);gap:0 2.5rem;padding:3.25rem 0 0;border-top:1px solid var(--line-soft)}
+section.blk:first-of-type{border-top:0}
+.rail{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-top:.55rem}
+.rail .stage{display:block;margin-top:.4rem;font-size:var(--fs-xs);letter-spacing:.06em}
+.stage.b{color:var(--bronze)} .stage.s{color:var(--silver)} .stage.g{color:var(--gold)}
+.body{display:flex;flex-direction:column;gap:1.15rem;min-width:0}
+@media (max-width:760px){
+  section.blk{grid-template-columns:1fr;gap:.5rem}
+  .rail{padding-top:0}
+  .rail .stage{display:inline;margin-left:1rem}
+}
+
+/* ---------- pieces ---------- */
+ol.q{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.55rem;counter-reset:q}
+ol.q li{display:grid;grid-template-columns:2.6rem 1fr;gap:.75rem;align-items:baseline;padding-bottom:.55rem;border-bottom:1px dotted var(--line)}
+ol.q li:last-child{border-bottom:0;padding-bottom:0}
+ol.q li::before{counter-increment:q;content:"P" counter(q);font-family:"IBM Plex Mono",monospace;font-size:var(--fs-sm);color:var(--accent);font-weight:500}
+ul.chk{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem}
+ul.chk li{display:grid;grid-template-columns:1.35rem 1fr;gap:.55rem;align-items:start;font-size:.9375rem;color:var(--ink-2)}
+ul.chk li::before{content:"";width:.8rem;height:.8rem;margin-top:.42rem;border:1.5px solid var(--line);border-radius:2px;background:var(--surface)}
+ul.chk li b{color:var(--ink);font-weight:600}
+
+.tw{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:var(--fs-sm);min-width:34rem}
+th,td{text-align:left;padding:.5rem .7rem;border-bottom:1px solid var(--line-soft);vertical-align:top}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-xs);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:400;background:var(--surface-2);border-bottom:1px solid var(--line);position:sticky;top:0}
+tbody tr:last-child td{border-bottom:0}
+td.mono,th.mono{font-family:"IBM Plex Mono",monospace}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:"IBM Plex Mono",monospace}
+caption{caption-side:bottom;text-align:left;font-size:var(--fs-xs);color:var(--muted);padding:.5rem .7rem;border-top:1px solid var(--line-soft)}
+
+.note{border-left:2px solid var(--accent);background:var(--accent-soft);padding:.7rem .95rem;font-size:.9375rem;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.warnbox{border-left:2px solid var(--warn);background:var(--surface);border-top:1px solid var(--line-soft);border-right:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);padding:.7rem .95rem;font-size:.9375rem;color:var(--ink-2)}
+
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:var(--fs-xs);letter-spacing:.04em;padding:.1rem .4rem;border:1px solid var(--line);border-radius:2px;color:var(--muted);background:var(--surface)}
+.tag.b{color:var(--bronze);border-color:var(--bronze)}
+.tag.s{color:var(--silver);border-color:var(--silver)}
+.tag.g{color:var(--gold);border-color:var(--gold)}
+
+.pts{display:flex;flex-direction:column;gap:.5rem}
+.pt{display:grid;grid-template-columns:1fr 3.4rem 7rem;gap:.75rem;align-items:center;font-size:.9375rem}
+.pt .bar{height:.4rem;background:var(--line-soft);position:relative}
+.pt .bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);display:block}
+.pt .v{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-sm);text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+.cal{display:flex;flex-direction:column;gap:0}
+.day{display:grid;grid-template-columns:5.5rem 1fr;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--line-soft);font-size:.9375rem}
+.day:last-child{border-bottom:0}
+.day .when{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-sm);color:var(--accent)}
+.day .what b{display:block;font-weight:600;color:var(--ink)}
+.day .what span{color:var(--muted);font-size:var(--fs-sm)}
+
+.tree{font-family:"IBM Plex Mono",monospace;font-size:var(--fs-sm);line-height:1.75;background:var(--surface);border:1px solid var(--line);padding:.9rem 1.1rem;overflow-x:auto;color:var(--ink-2);white-space:pre}
+.tree b{color:var(--ink);font-weight:500}
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--line);font-size:var(--fs-sm);color:var(--muted);display:grid;grid-template-columns:var(--gut) minmax(0,1fr);gap:2.5rem}
+@media (max-width:760px){footer{grid-template-columns:1fr}}
+
+td.w{font-family:"IBM Plex Mono",monospace;text-align:center;color:var(--muted);font-variant-numeric:tabular-nums}
+td.fill{color:var(--muted);font-style:italic}
+tr.tot td{border-top:1px solid var(--line);font-weight:600;background:var(--surface-2)}
+.kill{color:var(--crit);font-family:"IBM Plex Mono",monospace;font-size:var(--fs-xs)}
+h3{margin-top:.6rem}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+.panel{background:var(--surface);border:1px solid var(--line);padding:.85rem 1rem;display:flex;flex-direction:column;gap:.4rem}
+.panel h4{margin:0;font-family:Archivo,sans-serif;font-size:.9375rem;font-weight:600}
+.panel p{font-size:.875rem;color:var(--ink-2);max-width:none}
+.panel .tag{align-self:flex-start}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">MVP · Engenharia de Dados · PUC-Rio</div>
+  <h1>Roteiro do MVP Lakehouse</h1>
+  <p class="lede">Mapa integral de execução, independente do dataset: da pergunta de negócio ao README entregue. Cada bloco corresponde a uma etapa do enunciado e termina em um artefato verificável — tabela persistida, screenshot ou seção do documento final. O primeiro bloco é escolher a fonte de dados.</p>
+  <div class="meta-strip">
+    <span>Entrega <b>27/09</b></span>
+    <span>Hoje <b>09/09</b></span>
+    <span>Janela <b>18 dias</b></span>
+    <span>Nota <b>10,0 pts</b></span>
+    <span>Dataset <b>a definir</b></span>
+  </div>
+
+  <div class="flow">
+    <div class="step"><span class="n">fonte</span><span class="t">dataset</span><span class="d">a escolher</span></div>
+    <div class="step a"><span class="n">landing</span><span class="t">Volume</span><span class="d">Unity Catalog</span></div>
+    <div class="step b"><span class="n">camada 1</span><span class="t">bronze</span><span class="d">bruto + metadados</span></div>
+    <div class="step s"><span class="n">camada 2</span><span class="t">silver</span><span class="d">limpo e tipado</span></div>
+    <div class="step g"><span class="n">camada 3</span><span class="t">gold</span><span class="d">modelo + agregados</span></div>
+    <div class="step a"><span class="n">consumo</span><span class="t">análise</span><span class="d">perguntas respondidas</span></div>
+  </div>
+</header>
+
+<!-- decisoes -->
+<section class="blk">
+  <div class="rail">Decisões<span class="stage">o que já pode travar</span></div>
+  <div class="body">
+    <h2>O que independe do dataset</h2>
+    <p>Cinco das seis decisões estruturais podem ser tomadas hoje, antes de saber qual fonte você vai usar. Só a linha do dataset fica aberta — e ela não bloqueia nenhuma preparação de ambiente.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Decisão</th><th>Escolha</th><th>Por quê</th></tr></thead>
+      <tbody>
+        <tr><td>Plataforma</td><td class="mono">Databricks Free Edition</td><td>Suporte oficial da disciplina; serverless, sem cartão de crédito. Google Colab é nota zero.</td></tr>
+        <tr><td>Arquitetura</td><td class="mono">Medalhão, 3 camadas</td><td><code>bronze</code> / <code>silver</code> / <code>gold</code>. Se o Free Edition permitir criar catálogos separados, use catálogos; senão três schemas em um catálogo resolvem e a progressão continua explícita.</td></tr>
+        <tr><td>Formato</td><td class="mono">Delta Lake</td><td>Padrão do Databricks: ACID, time travel e evolução de schema sem esforço adicional.</td></tr>
+        <tr><td>Linguagem</td><td class="mono">PySpark + SQL</td><td>PySpark na ingestão e limpeza, SQL nos agregados e na análise. Mostra domínio dos dois.</td></tr>
+        <tr><td>Versionamento</td><td class="mono">Git folder do Databricks</td><td>Notebooks nascem dentro da pasta versionada e o push é diário — evita repositório vazio na véspera.</td></tr>
+        <tr><td>Dataset</td><td class="mono">a definir até 11/09</td><td>Escolher pela matriz do bloco seguinte. Prazo próprio, para não comprometer o cronograma.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- escolha do dataset -->
+<section class="blk">
+  <div class="rail">Bloco 0<span class="stage">decidir até 11/09</span></div>
+  <div class="body">
+    <h2>Escolha da fonte de dados</h2>
+    <p>A escolha do dataset determina diretamente dois critérios que somam 3,0 pontos: se dá para defender um modelo dimensional de verdade (2,0) e se existe sujeira real para tratar (1,0). Avalie os candidatos pela matriz abaixo em vez de decidir por afinidade com o tema.</p>
+
+    <h3>Matriz de decisão</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Critério</th><th class="w">Peso</th><th>Nota 0 a 3</th><th>Candidato A</th><th>Candidato B</th></tr></thead>
+      <tbody>
+        <tr><td>Tabelas relacionadas com chaves identificáveis</td><td class="w">3</td><td>0 = arquivo único e estreito · 3 = 4+ tabelas com PK/FK claras</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Métrica numérica que sustente um fato</td><td class="w">3</td><td>0 = só atributos categóricos · 3 = valor, preço, nota ou contagem por evento</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Coluna temporal utilizável</td><td class="w">2</td><td>0 = sem data · 3 = timestamp por registro cobrindo 12+ meses</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Sujeira real para tratar</td><td class="w">2</td><td>0 = base curada e perfeita · 3 = nulos, duplicatas e formatos inconsistentes</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Documentação das colunas na fonte</td><td class="w">2</td><td>0 = colunas sem significado documentado · 3 = dicionário de dados publicado</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Interesse pessoal e valor de portfólio</td><td class="w">2</td><td>0 = tema indiferente · 3 = domínio em que você quer atuar</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Dimensão geográfica ou categórica</td><td class="w">1</td><td>0 = nenhuma · 3 = região e categoria disponíveis</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Licença explícita <span class="kill">eliminatório</span></td><td class="w">2</td><td>0 = licença não declarada — <b>descarte o candidato</b> · 3 = licença aberta e citável</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr><td>Volume compatível com o Free Edition <span class="kill">eliminatório</span></td><td class="w">1</td><td>0 = dezenas de GB sem possibilidade de subset · 3 = até alguns GB</td><td class="fill">—</td><td class="fill">—</td></tr>
+        <tr class="tot"><td>Total</td><td class="w">18</td><td>Máximo 54 · viável a partir de 36</td><td class="fill">—</td><td class="fill">—</td></tr>
+      </tbody>
+      <caption>Pontue de 0 a 3 e multiplique pelo peso. Dois critérios são eliminatórios: licença não declarada e volume impossível de reduzir descartam o candidato independentemente do total.</caption>
+    </table></div>
+
+    <h3>Onde procurar</h3>
+    <div class="two">
+      <div class="panel"><span class="tag">arquivo pronto</span><h4>Kaggle Datasets</h4><p>Maior variedade e, em geral, com descrição de colunas e notebooks de exemplo que ajudam a formular perguntas. Confira a licença de cada dataset individualmente — varia muito.</p></div>
+      <div class="panel"><span class="tag">arquivo pronto</span><h4>Dados Abertos gov.br e Portal da Transparência</h4><p>Volume alto, tema de interesse público, licença aberta. Costuma vir com encoding latin-1, número com vírgula decimal e um arquivo por mês — ótima sujeira para a seção de qualidade.</p></div>
+      <div class="panel"><span class="tag">arquivo pronto</span><h4>Databricks Public Datasets</h4><p>Já montados no ambiente, sem etapa de download. Atalho seguro, mas a etapa de coleta fica pobre — vale como plano B.</p></div>
+      <div class="panel"><span class="tag">avançado</span><h4>API ou web scraping</h4><p>Conta como caso avançado no enunciado e pesa no capricho. Só siga por aqui se já tem experiência — a curva de aprendizado sai do orçamento de 18 dias.</p></div>
+      <div class="panel"><span class="tag">avançado</span><h4>Dados da empresa onde você trabalha</h4><p>Maior valor de portfólio e originalidade. Exige anonimizar nome, CPF/CNPJ e valores individuais <b>antes</b> de subir para qualquer ambiente externo.</p></div>
+      <div class="panel"><span class="tag">apoio</span><h4>IMDb, Yelp, Google Cloud Public Datasets</h4><p>Bases grandes e bem documentadas, boas para exercitar volume. Verifique restrição de uso não comercial e a viabilidade de trabalhar com um subset.</p></div>
+    </div>
+
+    <h3>Licenças: o que cada tipo permite</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Licença</th><th>Uso acadêmico</th><th>Obriga</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">CC0 / domínio público</td><td>Livre</td><td>Nada — mas cite a fonte de qualquer forma</td></tr>
+        <tr><td class="mono">CC BY</td><td>Livre</td><td>Atribuição ao autor original</td></tr>
+        <tr><td class="mono">CC BY-SA</td><td>Livre</td><td>Atribuição + derivados na mesma licença</td></tr>
+        <tr><td class="mono">CC BY-NC / NC-SA</td><td>Permitido</td><td>Atribuição + nada comercial (trabalho de curso se encaixa)</td></tr>
+        <tr><td class="mono">ODbL</td><td>Permitido</td><td>Atribuição + compartilhar adaptações do banco na mesma licença</td></tr>
+        <tr><td class="mono">Termos próprios do site</td><td>Depende</td><td>Ler os termos e transcrever a cláusula relevante no README</td></tr>
+        <tr><td class="mono">Não declarada</td><td class="kill">Descarte</td><td>Sem licença não há como cumprir o item do enunciado</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note">Assim que decidir, registre no README em uma linha: <b>nome do dataset, fonte, data do download, licença e o que ela exige</b>. É um item avaliado e leva dois minutos.</div>
+  </div>
+</section>
+
+<!-- etapa 2 -->
+<section class="blk">
+  <div class="rail">Etapa 2<span class="stage">1,0 pt</span></div>
+  <div class="body">
+    <h2>Objetivo e perguntas de negócio</h2>
+    <p>O objetivo é um documento de planejamento, não uma frase. Ele tem três partes: o contexto de quem tem o problema, a decisão que está travada por falta de dados, e as perguntas que destravam essa decisão.</p>
+
+    <h3>Estrutura do problema</h3>
+    <ul class="chk">
+      <li><b>Quem tem o problema</b> — a área ou papel que receberia a resposta (operação, comercial, gestão pública, produto).</li>
+      <li><b>O que não se sabe hoje</b> — a lacuna concreta, não um tema genérico. "Não sabemos se a insatisfação vem da entrega ou do produto" é lacuna; "queremos entender o cliente" não é.</li>
+      <li><b>Qual decisão depende disso</b> — o que muda de fato conforme a resposta. É o que justifica todo o pipeline existir.</li>
+      <li><b>Como fica sem a resposta</b> — o custo de continuar no escuro, para dar peso ao trabalho.</li>
+    </ul>
+
+    <h3>Anatomia de um bom conjunto de perguntas</h3>
+    <p>De seis a oito perguntas, cobrindo tipos diferentes. Variar o tipo é o que força um modelo dimensional rico em vez de uma consulta única — e cada tipo já indica o que o modelo gold precisa ter.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Tipo</th><th>Forma da pergunta</th><th>Exige do modelo</th></tr></thead>
+      <tbody>
+        <tr><td>Volume / linha de base</td><td>Qual o total ou a média de X no período?</td><td>Métrica no fato + <code>dim_data</code></td></tr>
+        <tr><td>Evolução temporal</td><td>Como X se comporta mês a mês?</td><td><code>dim_data</code> com ano/mês + tabela agregada</td></tr>
+        <tr><td>Comparativa</td><td>Quais categorias ou regiões têm o pior X?</td><td>Dimensão categórica conformada e padronizada</td></tr>
+        <tr><td>Relacional</td><td>X se associa a Y? Em que intensidade?</td><td>Duas métricas no <b>mesmo grão</b> do fato</td></tr>
+        <tr><td>Concentração</td><td>Quantos % de A respondem por 80% de B?</td><td>Fato no grão da entidade + função de janela</td></tr>
+        <tr><td>Segmentação</td><td>Existem grupos com comportamento distinto?</td><td>Atributos descritivos nas dimensões</td></tr>
+        <tr><td>Operacional</td><td>Qual % dos registros viola a regra R?</td><td>Coluna de flag calculada na silver</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox">Escreva as perguntas <b>antes</b> de abrir os dados e não apague nenhuma depois. Pergunta que não fechou vira material da autoavaliação e não custa nota; pergunta apagada custa credibilidade.</div>
+  </div>
+</section>
+
+<!-- 4.1 -->
+<section class="blk">
+  <div class="rail">Etapa 4.1<span class="stage">0,5 pt com 4.2</span></div>
+  <div class="body">
+    <h2>Busca e inventário dos dados brutos</h2>
+    <p>Antes de qualquer transformação, o README precisa descrever o que chegou. Preencha um inventário com uma linha por arquivo — ele também é o insumo para desenhar o modelo depois.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Arquivo</th><th class="w">Linhas</th><th class="w">Colunas</th><th>Grão (o que é 1 linha)</th><th>Chave</th><th>Relaciona com</th></tr></thead>
+      <tbody>
+        <tr><td class="fill">nome_do_arquivo.csv</td><td class="fill">—</td><td class="fill">—</td><td class="fill">1 linha = ...</td><td class="fill">PK</td><td class="fill">FK → outro arquivo</td></tr>
+        <tr><td class="fill">…</td><td class="fill">—</td><td class="fill">—</td><td class="fill">—</td><td class="fill">—</td><td class="fill">—</td></tr>
+      </tbody>
+      <caption>Identificar o grão de cada arquivo nesta etapa evita o erro mais caro do trabalho: juntar tabelas de grãos diferentes e inflar as métricas.</caption>
+    </table></div>
+    <ul class="chk">
+      <li><b>Contexto da origem</b> — quem produziu, para qual finalidade, que período cobre, com que frequência é atualizado.</li>
+      <li><b>Licença transcrita</b> com link, e o que ela obriga.</li>
+      <li><b>Data do download</b> registrada — o dataset pode mudar depois.</li>
+      <li><b>Grão e chaves</b> de cada arquivo, mesmo que a fonte não documente: descubra com <code>count</code> vs. <code>count distinct</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4.2 -->
+<section class="blk">
+  <div class="rail">Etapa 4.2<span class="stage b">bronze</span></div>
+  <div class="body">
+    <h2>Coleta: dados na nuvem</h2>
+    <ul class="chk">
+      <li><b>Volume de landing</b> criado no Unity Catalog: <code>CREATE VOLUME bronze.raw_files</code>.</li>
+      <li><b>Upload dos arquivos</b> para o Volume via Catalog Explorer — screenshot da tela.</li>
+      <li><b>Notebook <code>01_ingestao_bronze</code></b> percorre os arquivos e grava uma tabela Delta por arquivo, sem tratar nada: schema inferido, tipos e nomes como vieram.</li>
+      <li><b>Metadados de controle</b> em toda tabela bronze: <code>_ingestao_ts</code> com <code>current_timestamp()</code>, <code>_arquivo_origem</code> com <code>input_file_name()</code>, <code>_camada = 'bronze'</code>.</li>
+      <li><b>Idempotência</b>: <code>mode("overwrite")</code> com <code>overwriteSchema</code>, para que reexecutar não duplique dados.</li>
+      <li><b>Loop parametrizado</b>, não um bloco copiado por arquivo — a lista de arquivos vira um dicionário no topo do notebook.</li>
+      <li><b>Conferência</b> da contagem de linhas de cada tabela contra o arquivo de origem.</li>
+      <li><b>Evidência</b>: screenshot do schema <code>bronze</code> com as tabelas Delta listadas.</li>
+    </ul>
+    <div class="note">A bronze é cofre de evidências: se a silver estragar algo, a resposta original está aqui intacta. <b>Nada de <code>dropna</code>, <code>cast</code> ou renomeação nesta camada.</b></div>
+  </div>
+</section>
+
+<!-- 4.3 -->
+<section class="blk">
+  <div class="rail">Etapa 4.3<span class="stage g">2,0 pts</span></div>
+  <div class="body">
+    <h2>Modelagem e catálogo de dados</h2>
+    <p>Bloco de maior peso, dividido em duas metades: as tabelas (1,0) e a documentação delas (1,0).</p>
+
+    <h3>Camada silver</h3>
+    <p>Um espelho limpo por entidade da bronze, com nomes padronizados, tipos corretos, deduplicação e as colunas derivadas simples de que as perguntas precisam. Mesma quantidade de tabelas da bronze — a reorganização acontece só na gold.</p>
+
+    <h3>Como achar o fato</h3>
+    <ul class="chk">
+      <li><b>O fato é o evento que se repete</b> e que carrega números: uma venda, uma despesa, uma viagem, um atendimento, uma medição.</li>
+      <li><b>Declare o grão em uma frase</b> antes de escrever código: "1 linha = 1 item de um pedido". Se não consegue completar essa frase, o modelo ainda não está pronto.</li>
+      <li><b>Métricas diferentes em grãos diferentes viram fatos diferentes</b>. Forçar tudo numa tabela só duplica linhas e infla somas — é o erro clássico de <em>fan-out</em>.</li>
+      <li><b>Cada dimensão responde a um "por quem, o quê, onde, quando"</b> do fato. Se um atributo não qualifica o evento, provavelmente não é dimensão.</li>
+      <li><b>Sempre construa uma <code>dim_data</code></b> própria, com ano, mês, trimestre, dia da semana. Custa pouco e habilita quase todas as perguntas temporais.</li>
+    </ul>
+
+    <h3>Qual modelo escolher</h3>
+    <div class="two">
+      <div class="panel"><span class="tag g">recomendado</span><h4>Esquema estrela</h4><p>Um fato central cercado de dimensões desnormalizadas. Consultas simples, ótimo desempenho analítico e é o que a disciplina espera ver. Vale mesmo com poucas dimensões.</p></div>
+      <div class="panel"><span class="tag">alternativa</span><h4>Snowflake</h4><p>Dimensões normalizadas em sub-tabelas. Justifique só se houver hierarquia real e profunda (produto → subcategoria → categoria → departamento), senão é complexidade sem retorno.</p></div>
+      <div class="panel"><span class="tag">alternativa</span><h4>Flat por conceito</h4><p>Uma tabela larga por conceito. Aceitável quando a fonte é um arquivo único e amplo — mas então mostre que <b>decompôs</b> essa tabela em fato e dimensões, senão a modelagem não aparece.</p></div>
+      <div class="panel"><span class="tag g">sempre</span><h4>Tabelas agregadas</h4><p>Duas ou três <code>agg_*</code> pré-calculadas nos cortes que as perguntas mais usam. Barato de fazer e demonstra que a gold foi pensada para consumo.</p></div>
+    </div>
+
+    <h3>Catálogo de dados</h3>
+    <p>Documentar duas vezes, com finalidades diferentes: dentro do Unity Catalog, porque é a ferramenta que a disciplina pede, e transcrito em <code>docs/catalogo_de_dados.md</code>, porque é o que o avaliador lê.</p>
+    <ul class="chk">
+      <li><b>Descrição da tabela</b>: contexto, grão em uma frase, de onde vem, com que frequência é recarregada.</li>
+      <li><b>Descrição de cada coluna</b> via <code>COMMENT ON TABLE</code> e <code>ALTER TABLE … ALTER COLUMN … COMMENT</code>, aplicados por script versionado — não pela UI, que não deixa rastro no Git.</li>
+      <li><b>Domínio de valores dentro do comentário</b> — o item mais esquecido. Numérico ganha faixa esperada; categórico ganha a lista completa de valores possíveis.</li>
+      <li><b>Linhagem</b>: coluna de origem, ou a fórmula quando for derivada.</li>
+      <li><b>Chaves informacionais</b>: <code>PRIMARY KEY</code> e <code>FOREIGN KEY … NOT ENFORCED</code> nas tabelas gold, para o Unity Catalog desenhar o diagrama de relacionamento.</li>
+      <li><b>Screenshots</b>: aba <em>Overview</em> de uma tabela gold com os comentários visíveis, aba <em>Lineage</em> com o grafo bronze → silver → gold, e o diagrama de entidades.</li>
+    </ul>
+    <div class="tw"><table>
+      <thead><tr><th class="mono">coluna</th><th>tipo</th><th>domínio de valores</th><th>linhagem</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">id_&lt;entidade&gt;</td><td class="mono">STRING</td><td>identificador único, formato da fonte</td><td>coluna de origem na bronze</td></tr>
+        <tr><td class="mono">valor_&lt;métrica&gt;</td><td class="mono">DECIMAL(12,2)</td><td>faixa mínima e máxima observada; se 0 é válido, dizer explicitamente</td><td>coluna de origem, com conversão de tipo</td></tr>
+        <tr><td class="mono">&lt;métrica&gt;_derivada</td><td class="mono">INT</td><td>faixa; o que significa negativo; o que significa nulo</td><td>fórmula: <code>datediff(a, b)</code></td></tr>
+        <tr><td class="mono">status_&lt;entidade&gt;</td><td class="mono">STRING</td><td>lista completa dos valores possíveis</td><td>coluna de origem, padronizada em minúsculas</td></tr>
+        <tr><td class="mono">flag_&lt;regra&gt;</td><td class="mono">BOOLEAN</td><td>true quando a regra R é violada</td><td>derivada na silver, regra descrita</td></tr>
+        <tr><td class="mono">_ingestao_ts</td><td class="mono">TIMESTAMP</td><td>data e hora da carga</td><td>metadado técnico da ingestão</td></tr>
+      </tbody>
+      <caption>Template do nível de detalhe esperado. Repita para toda tabela da silver e da gold.</caption>
+    </table></div>
+  </div>
+</section>
+
+<!-- 4.4 -->
+<section class="blk">
+  <div class="rail">Etapa 4.4<span class="stage">1,0 pt</span></div>
+  <div class="body">
+    <h2>Pipeline de ETL</h2>
+    <p>Um notebook por responsabilidade, não um monolito: fica óbvio o que cada etapa faz e o erro aparece isolado. A ordem abaixo é a ordem de execução.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Notebook</th><th>Lê de</th><th>Grava em</th><th>Responsabilidade</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">00_setup_ambiente</td><td>—</td><td class="mono">schemas + volume</td><td>DDL do ambiente; roda uma vez.</td></tr>
+        <tr><td class="mono">01_ingestao_bronze</td><td class="mono">Volume</td><td class="mono">bronze.*</td><td>Arquivo → Delta com metadados de ingestão, sem tratamento.</td></tr>
+        <tr><td class="mono">02_perfilamento_qualidade</td><td class="mono">bronze.*</td><td class="mono">gold.qualidade_perfil</td><td>Perfila nulos, duplicatas, cardinalidade, mínimos, máximos e outliers por atributo; persiste como tabela para citar no README.</td></tr>
+        <tr><td class="mono">03_silver_limpeza</td><td class="mono">bronze.*</td><td class="mono">silver.*</td><td>Renomeia, tipa, deduplica, padroniza texto, cria colunas derivadas e flags de exceção.</td></tr>
+        <tr><td class="mono">04_gold_dimensoes</td><td class="mono">silver.*</td><td class="mono">gold.dim_*</td><td>Dimensões conformadas; <code>dim_data</code> gerada por sequência de datas.</td></tr>
+        <tr><td class="mono">05_gold_fatos</td><td class="mono">silver.*</td><td class="mono">gold.fato_*</td><td>Fato no grão declarado, com as chaves das dimensões e as métricas.</td></tr>
+        <tr><td class="mono">06_gold_agregados</td><td class="mono">gold.fato_*</td><td class="mono">gold.agg_*</td><td>Métricas pré-calculadas nos cortes usados pelas perguntas.</td></tr>
+        <tr><td class="mono">07_catalogo_comentarios</td><td>—</td><td class="mono">metadados</td><td><code>COMMENT</code> em tabelas e colunas, chaves informacionais.</td></tr>
+        <tr><td class="mono">08_analise_perguntas</td><td class="mono">gold.*</td><td>gráficos</td><td>Uma seção por pergunta, com consulta, resultado e interpretação.</td></tr>
+        <tr><td class="mono">09_validacao_final</td><td class="mono">gold.*</td><td>relatório</td><td>Testes pós-carga: contagens, unicidade de PK, integridade referencial, faixas.</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="chk">
+      <li><b>Orquestração</b>: um Job encadeando <code>01 → 02 → 03 → 04 → 05 → 06 → 07 → 09</code> com dependências declaradas. Screenshot do grafo e de uma execução bem-sucedida — pesa no capricho.</li>
+      <li><b>Documentar cada transformação</b> em célula markdown acima do código: o que faz, por que faz, quantas linhas entram e quantas saem.</li>
+      <li><b>Commit e push a cada notebook concluído</b>, não tudo no dia 26.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 4.5 qualidade -->
+<section class="blk">
+  <div class="rail">Etapa 4.5<span class="stage">1,0 pt · qualidade</span></div>
+  <div class="body">
+    <h2>Qualidade de dados</h2>
+    <p>A verificação roda sobre a bronze, porque é lá que os problemas existem; o tratamento acontece na silver. Rode as cinco dimensões abaixo <b>coluna por coluna</b> e registre o resultado numa tabela persistida.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Dimensão</th><th>O que medir</th><th>Como decidir o tratamento</th></tr></thead>
+      <tbody>
+        <tr><td>Completude</td><td>% de nulos e de vazios por coluna</td><td>Distinguir <b>nulo estrutural</b> (legítimo: o evento não ocorreu) de <b>nulo por falha</b>. O primeiro se documenta; o segundo se imputa ou se exclui da métrica, com justificativa.</td></tr>
+        <tr><td>Unicidade</td><td><code>count</code> vs. <code>count distinct</code> em cada chave candidata</td><td>Duplicata técnica se remove pelo registro mais recente; repetição legítima significa que você errou o grão — corrija o modelo, não os dados.</td></tr>
+        <tr><td>Consistência</td><td>formatos, caixa, acentuação, encoding, unidades, domínio de categóricos</td><td>Padronizar na silver e registrar a regra. Categoria fora do domínio esperado vira <code>'nao_informada'</code> em vez de nulo silencioso.</td></tr>
+        <tr><td>Acurácia</td><td>plausibilidade contextual: datas fora de ordem, valores negativos onde não cabem, coordenadas fora do território</td><td>Marcar com coluna de flag e excluir do cálculo afetado. <b>Nunca apagar a linha da silver</b> — a rastreabilidade é o que a camada existe para preservar.</td></tr>
+        <tr><td>Outliers</td><td>mínimo, máximo, percentis, desvio</td><td>Manter e reportar. Usar mediana em vez de média nas análises sensíveis e dizer no README que essa foi a escolha e por quê.</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="chk">
+      <li><b>Tabela de perfilamento persistida</b> (<code>gold.qualidade_perfil</code>) com uma linha por coluna analisada — screenshot dela é a evidência mais forte deste critério.</li>
+      <li><b>Um parágrafo por problema encontrado</b> no README: o que era, quantas linhas afetava, o que você fez, e como isso muda a resposta de qual pergunta.</li>
+      <li><b>Testes pós-carga</b> na gold, para provar que o tratamento funcionou.</li>
+    </ul>
+    <div class="note">Base curada e sem problema em algum atributo? <b>Mostre a verificação de qualquer forma.</b> O critério avalia a evidência de que você checou, não a quantidade de defeitos encontrados.</div>
+  </div>
+</section>
+
+<!-- 4.5 analise -->
+<section class="blk">
+  <div class="rail">Etapa 4.5<span class="stage">2,0 pts · análise</span></div>
+  <div class="body">
+    <h2>Análise e respostas</h2>
+    <p>Metade da nota é a análise correta; a outra metade é a discussão. Número sem interpretação não pontua.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Tipo de pergunta</th><th>Técnica</th><th>Visualização que comunica melhor</th></tr></thead>
+      <tbody>
+        <tr><td>Volume / linha de base</td><td><code>SUM</code>, <code>AVG</code>, <code>COUNT</code> com recorte de período</td><td>Tabela ou indicador único</td></tr>
+        <tr><td>Evolução temporal</td><td><code>GROUP BY</code> ano-mês sobre o agregado</td><td>Série temporal</td></tr>
+        <tr><td>Comparativa</td><td><code>GROUP BY</code> dimensão + <code>ORDER BY</code> métrica</td><td>Barras ordenadas</td></tr>
+        <tr><td>Relacional</td><td>Faixas (<code>CASE WHEN</code>) e correlação entre as métricas</td><td>Dispersão com tendência, ou barras por faixa</td></tr>
+        <tr><td>Concentração</td><td><code>SUM() OVER (ORDER BY … )</code> acumulado</td><td>Curva de Pareto</td></tr>
+        <tr><td>Cruzamento de duas dimensões</td><td><code>GROUP BY</code> duplo</td><td>Matriz / heatmap</td></tr>
+        <tr><td>Operacional</td><td>Proporção da coluna de flag</td><td>Barras empilhadas ou percentual simples</td></tr>
+      </tbody>
+    </table></div>
+    <ul class="chk">
+      <li><b>Padrão de resposta</b>, igual para todas: pergunta → consulta → resultado → duas ou três frases dizendo o que o número significa no negócio, com o valor citado no texto.</li>
+      <li><b>Responder também o que deu negativo</b>: "não há relação entre X e Y" é resposta válida e bem vista, desde que sustentada.</li>
+      <li><b>Discussão geral</b> ao final, amarrando todas as respostas ao problema original e indicando onde agir primeiro.</li>
+      <li><b>Screenshot de cada resultado</b>, colado na seção correspondente do README.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- readme -->
+<section class="blk">
+  <div class="rail">Entrega<span class="stage">documento avaliado</span></div>
+  <div class="body">
+    <h2>README: as 7 seções obrigatórias</h2>
+    <p>O enunciado exige títulos explícitos com o mesmo nome de cada subitem. Use exatamente estes cabeçalhos — o avaliador procura por eles.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Título no README</th><th>Precisa conter</th></tr></thead>
+      <tbody>
+        <tr><td>Contexto de Negócios e Perguntas (Etapa 2 e 4.1)</td><td>Problema, perguntas, contexto e estrutura dos dados brutos, licença</td></tr>
+        <tr><td>Carga dos Dados (Etapa 4.2)</td><td>Como os arquivos chegaram ao Volume, link para o notebook de ingestão, screenshot</td></tr>
+        <tr><td>Modelagem e Catálogo de Dados (Etapa 4.3)</td><td>Justificativa do modelo, diagrama, catálogo transcrito, screenshots do Unity Catalog</td></tr>
+        <tr><td>Pipeline de Dados (Etapa 4.4)</td><td>Como ramificou os notebooks e por quê, links de cada um, screenshots das tabelas persistidas e do Job</td></tr>
+        <tr><td>Qualidade de Dados (Etapa 4.5)</td><td>Cada problema detectado, tratamento aplicado e impacto nas respostas</td></tr>
+        <tr><td>Análise de Dados (Etapa 4.5)</td><td>Cada pergunta respondida com evidência e discussão; discussão geral final</td></tr>
+        <tr><td>Autoavaliação</td><td>O que foi atingido, o que não foi e por quê, dificuldades, trabalhos futuros</td></tr>
+      </tbody>
+    </table></div>
+    <div class="warnbox">Vídeo e áudio não são aceitos. Tudo que não estiver escrito ou em screenshot no README não existe para a correção.</div>
+
+    <h3>Evidências a capturar</h3>
+    <ul class="chk">
+      <li>Workspace do Databricks Free Edition identificado</li>
+      <li>Volume com os arquivos brutos carregados</li>
+      <li>Schema <code>bronze</code> com as tabelas Delta</li>
+      <li>Schema <code>silver</code> com as tabelas limpas</li>
+      <li>Schema <code>gold</code> com fatos, dimensões e agregados</li>
+      <li>Aba <em>Overview</em> de uma tabela gold com comentários por coluna</li>
+      <li>Aba <em>Lineage</em> com o grafo bronze → silver → gold</li>
+      <li>Diagrama de entidades com as chaves informacionais</li>
+      <li>Grafo do Job e execução concluída com sucesso</li>
+      <li>Tabela de perfilamento de qualidade</li>
+      <li>Um resultado por pergunta de negócio</li>
+      <li>Git folder do Databricks sincronizado com o GitHub</li>
+    </ul>
+  </div>
+</section>
+
+<!-- nota -->
+<section class="blk">
+  <div class="rail">Rubrica<span class="stage">onde a nota mora</span></div>
+  <div class="body">
+    <h2>Mapa da nota</h2>
+    <div class="pts">
+      <div class="pt"><span>Objetivo — problema e perguntas detalhados</span><span class="v">1,0</span><span class="bar"><i style="width:10%"></i></span></div>
+      <div class="pt"><span>Coleta — documentação da captura e do contexto</span><span class="v">0,5</span><span class="bar"><i style="width:5%"></i></span></div>
+      <div class="pt"><span>Modelagem — tabelas (1,0) + catálogo de dados (1,0)</span><span class="v">2,0</span><span class="bar"><i style="width:20%"></i></span></div>
+      <div class="pt"><span>Carga e pipeline — scripts e documentação</span><span class="v">1,0</span><span class="bar"><i style="width:10%"></i></span></div>
+      <div class="pt"><span>Qualidade — problemas detectados e tratados</span><span class="v">1,0</span><span class="bar"><i style="width:10%"></i></span></div>
+      <div class="pt"><span>Análise — correção (1,0) + discussão (1,0)</span><span class="v">2,0</span><span class="bar"><i style="width:20%"></i></span></div>
+      <div class="pt"><span>Autoavaliação — honesta e específica</span><span class="v">0,5</span><span class="bar"><i style="width:5%"></i></span></div>
+      <div class="pt"><span>Capricho — qualidade geral, subjetivo</span><span class="v">2,0</span><span class="bar"><i style="width:20%"></i></span></div>
+    </div>
+    <p>Os 2,0 de capricho empatam com modelagem e análise como maior nota isolada, e são os mais baratos de conquistar: README com diagrama próprio, screenshots recortados e legendados, notebooks com markdown explicativo, commits com mensagem decente, catálogo completo no Unity Catalog e um Job orquestrando o pipeline em vez de execução manual.</p>
+  </div>
+</section>
+
+<!-- cronograma -->
+<section class="blk">
+  <div class="rail">Cronograma<span class="stage">09/09 → 27/09</span></div>
+  <div class="body">
+    <h2>Dezoito dias, em blocos</h2>
+    <div class="cal">
+      <div class="day"><span class="when">09–10/09</span><span class="what"><b>Ambiente</b><span>Conta, repositório público, Git folder, schemas e volume. Não depende do dataset — faça agora.</span></span></div>
+      <div class="day"><span class="when">10–11/09</span><span class="what"><b>Dataset e objetivo</b><span>Pontuar candidatos na matriz, decidir, registrar licença. Escrever problema e perguntas no README antes de abrir os dados.</span></span></div>
+      <div class="day"><span class="when">12–13/09</span><span class="what"><b>Bronze</b><span>Upload para o Volume e ingestão rodando, com contagens conferidas.</span></span></div>
+      <div class="day"><span class="when">14–15/09</span><span class="what"><b>Qualidade</b><span>Perfilamento por atributo e inventário de problemas — é o insumo das decisões da silver.</span></span></div>
+      <div class="day"><span class="when">16–18/09</span><span class="what"><b>Silver</b><span>Tipos, deduplicação, padronização, colunas derivadas e flags. Levar dúvidas à sessão de 16/09.</span></span></div>
+      <div class="day"><span class="when">19–21/09</span><span class="what"><b>Gold</b><span>Dimensões, fato no grão declarado e agregados. Bloco mais longo e de maior peso.</span></span></div>
+      <div class="day"><span class="when">22/09</span><span class="what"><b>Catálogo</b><span>Comentários, chaves informacionais, screenshots do Unity Catalog e o catálogo transcrito.</span></span></div>
+      <div class="day"><span class="when">23–24/09</span><span class="what"><b>Análise</b><span>Cada pergunta respondida com evidência e discussão. Última sessão de dúvidas é 23/09.</span></span></div>
+      <div class="day"><span class="when">25/09</span><span class="what"><b>Orquestração e validação</b><span>Job encadeado, execução limpa de ponta a ponta, testes pós-carga passando.</span></span></div>
+      <div class="day"><span class="when">26/09</span><span class="what"><b>README</b><span>As 7 seções escritas, screenshots colados, autoavaliação. Dia inteiro só de escrita.</span></span></div>
+      <div class="day"><span class="when">27/09</span><span class="what"><b>Revisão e entrega</b><span>Repositório público, links funcionando, notebooks commitados, leitura final.</span></span></div>
+    </div>
+    <div class="note">O cronograma reserva <b>dois dias</b> para a escolha do dataset. Passar disso come o tempo da gold, que é o bloco de maior peso — se em 11/09 ainda houver empate, escolha o candidato de maior total na matriz e siga.</div>
+  </div>
+</section>
+
+<!-- riscos -->
+<section class="blk">
+  <div class="rail">Riscos<span class="stage">antecipar hoje</span></div>
+  <div class="body">
+    <h2>O que costuma dar errado</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Risco</th><th>Sinal</th><th>Plano B</th></tr></thead>
+      <tbody>
+        <tr><td>Escolha do dataset se arrasta</td><td>Dia 13 e a bronze ainda não existe</td><td>Fechar pela matriz e aceitar o segundo melhor — pipeline bem executado sobre dataset bom vale mais que dataset perfeito sem pipeline</td></tr>
+        <tr><td>Dataset se revela pobre depois da ingestão</td><td>Duas perguntas não têm coluna que as sustente</td><td>Complementar com uma segunda fonte pequena para join (tabela de referência, tradução, geografia) em vez de trocar tudo</td></tr>
+        <tr><td>Free Edition não permite criar catálogos</td><td>Erro de permissão no <code>CREATE CATALOG</code></td><td>Um catálogo com três schemas — a progressão medalhão continua explícita e vale igual</td></tr>
+        <tr><td>Tabela grande estoura o compute serverless</td><td>Job travando ou tempo excessivo em um join</td><td>Agregar a tabela grande antes do join, filtrar o período de interesse, ou trabalhar com subset documentado</td></tr>
+        <tr><td>Fan-out entre grãos diferentes</td><td>Soma da métrica maior que o esperado</td><td>Separar em dois fatos e nunca juntar grãos distintos na mesma linha</td></tr>
+        <tr><td>Notebooks fora do Git folder</td><td>Repositório vazio na véspera</td><td>Criar tudo dentro da pasta versionada desde o dia 1 e dar push diário</td></tr>
+        <tr><td>Screenshots deixados para o fim</td><td>Telas já sobrescritas por reexecuções</td><td>Capturar no momento em que cada etapa fecha, direto para <code>docs/screenshots/</code></td></tr>
+        <tr><td>Análise sem discussão</td><td>Gráficos soltos no README</td><td>Toda evidência acompanhada de duas frases de interpretação — é 1,0 pt exclusivo disso</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<footer>
+  <div>Roteiro de execução</div>
+  <div>Mapa independente do dataset · Plataforma: Databricks Free Edition · Arquitetura medalhão em Delta Lake · Entrega: 27/09</div>
+</footer>
+
+</div>
